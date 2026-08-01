@@ -40,6 +40,18 @@ export const createNote = async (req, res, next) => {
     const tenantId = req.user.tenant;
     const { title, content } = req.body;
 
+    // Check note limit for Free plan
+    const tenant = await Tenant.findById(tenantId);
+    if (tenant.plan === "Free") {
+      const noteCount = await Notes.countDocuments({ tenant: tenantId });
+      if (noteCount >= tenant.noteLimit) {
+        return res.status(403).json({
+          message: "Note limit reached. Upgrade to Pro for unlimited notes.",
+          limitReached: true
+        });
+      }
+    }
+
     const note = await Notes.create({
       title,
       content,

@@ -7,16 +7,22 @@ import { useNavigate } from "react-router-dom";
   const [content, setContent] = useState("");
   const navigate = useNavigate();
 
-    const handleAdd = async (e) => {
-    e.preventDefault();
-    try {
-      await API.post("/notes/createNote", { title, content });                                                                
+  const handleAdd = async (e) => {
+  e.preventDefault();
+  try {
+    await API.post("/notes/createNote", { title, content });
+    navigate("/notes");
+  } catch (err) {
+    if (err.response?.data?.limitReached) {
+      alert("Note limit reached! Upgrade to Pro for unlimited notes.");
       navigate("/notes");
-    } catch (err) {
+    } else {
       alert(err.response?.data?.message || "Error creating note");
+      }
     }
   };
 
+  
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <form
